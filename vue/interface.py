@@ -9,11 +9,19 @@ class Interface:
         self.root = tk.Tk()
         self.root.title("Système d'alarme")
 
-        self.label = tk.Label(self.root, text="Système désactivé", bg="red", width=30)
-        self.label.pack(pady=10)
+        width = 600
+        height = 400
 
-        self.btn = tk.Button(self.root, text="Toggle", command=self.c.toggle)
-        self.btn.pack(pady=10)
+        screen_w = self.root.winfo_screenwidth()
+        screen_h = self.root.winfo_screenheight()
+
+        x = int((screen_w / 2) - (width / 2))
+        y = int((screen_h / 2) - (height / 2))
+
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
+
+        self.label = tk.Label(self.root, text="Système désactivé", bg="red", width=30)
+        self.label.pack(pady=20)
 
     def update_etat(self, actif):
         self.label.config(

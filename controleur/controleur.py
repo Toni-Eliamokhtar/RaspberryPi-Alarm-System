@@ -14,3 +14,6 @@ class Controleur:
         self.systeme_actif = not self.systeme_actif
         self.vue.update_etat(self.systeme_actif)
         self.platine.set_led(self.systeme_actif)
+
+    def mouvement(self):
+        print("MOUVEMENT DETECTÉ")

@@ -18,6 +18,8 @@ if __name__ == "__main__":
             if p.bouton_presse():
                 c.toggle()
                 time.sleep(0.3)
+
             v.root.update()
+
     except KeyboardInterrupt:
-        pass
+        p.stop()
