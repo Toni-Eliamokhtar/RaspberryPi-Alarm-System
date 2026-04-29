@@ -9,6 +9,7 @@ class Interface:
         self.root = tk.Tk()
         self.root.title("Système d'alarme")
 
+        # taille + centrage
         width = 600
         height = 400
 
@@ -20,14 +21,28 @@ class Interface:
 
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
-        self.label = tk.Label(self.root, text="Système désactivé", bg="red", width=30)
-        self.label.pack(pady=20)
+        self.label_etat = tk.Label(
+            self.root, text="Système désactivé", bg="red", width=30
+        )
+        self.label_etat.pack(pady=10)
+
+        self.label_message = tk.Label(self.root, text="")
+        self.label_message.pack(pady=10)
+
+        self.listbox = tk.Listbox(self.root, height=10)
+        self.listbox.pack(fill="both", expand=True, padx=10, pady=10)
 
     def update_etat(self, actif):
-        self.label.config(
+        self.label_etat.config(
             text="Système ACTIVÉ" if actif else "Système DÉSACTIVÉ",
             bg="green" if actif else "red",
         )
+
+    def update_message(self, msg):
+        self.label_message.config(text=msg)
+
+    def ajouter_event(self, e):
+        self.listbox.insert(tk.END, str(e))
 
     def run(self):
         self.root.mainloop()
