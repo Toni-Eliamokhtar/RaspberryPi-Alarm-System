@@ -32,25 +32,63 @@ class Controleur:
         self.platine = p
 
     def init_systeme(self):
-        # état initial
+        # État initial : LED rouge allumée, LCD vide, système désactivé
         self.platine.set_led(False)
+        self.platine.lcd_effacer()
         self.vue.update_etat(False)
-        self.vue.update_message("")
+
+
+    # Méthodes de contrôle du système (Toggle, bouton bleu)
 
     def toggle_systeme(self):
-        self.systeme_actif = not self.systeme_actif
 
-        self.platine.set_led(self.systeme_actif)
+        # Démarre ou arrête le système selon son état actuel
+        
+        if self.acces_bloque:
+            # si bloqué, le bouton bleu débloque et désactive
+            self.acces_bloque  = False
+            self.attente_code  = False
+            self.tentatives    = 0
+            self.code_saisi    = ""
+            self.systeme_actif = False
+            self.platine.set_led(False)
+            self.platine.lcd_afficher("Systeme", "desactive")
+            self.vue.update_etat(False)
+            e = Evenement(
+                "Désactivation du système d'alarme",
+                {"capteur": "N/A", "code": "N/A"}
+            )
+            self.vue.ajouter_event(e)
 
-        if self.systeme_actif:
-            self.vue.update_message("Système activé")
-            e = Evenement("Activation", {})
+        elif self.systeme_actif:
+            # arrêt normal du système
+            self.systeme_actif = False
+            self.attente_code  = False
+            self.tentatives    = 0
+            self.code_saisi    = ""
+            self.platine.set_led(False)
+            self.platine.lcd_afficher("Systeme", "desactive")
+            self.vue.update_etat(False)
+            e = Evenement(
+                "Désactivation du système d'alarme",
+                {"capteur": "N/A", "code": "N/A"}
+            )
+            self.vue.ajouter_event(e)
+
         else:
-            self.vue.update_message("Système désactivé")
-            e = Evenement("Désactivation", {})
-
-        self.vue.ajouter_event(e)
-        self.vue.update_etat(self.systeme_actif)
+            # démarrage du système
+            self.systeme_actif = True
+            self.attente_code  = False
+            self.tentatives    = 0
+            self.code_saisi    = ""
+            self.platine.set_led(True)
+            self.platine.lcd_afficher("Systeme", "active")
+            self.vue.update_etat(True)
+            e = Evenement(
+                "Activation du système d'alarme",
+                {"capteur": "N/A", "code": "N/A"}
+            )
+            self.vue.ajouter_event(e)
 
     def mouvement(self):
         self.vue.update_message("MOUVEMENT DETECTÉ")
