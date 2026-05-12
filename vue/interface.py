@@ -159,8 +159,15 @@ class Interface:
 
 
     def bloquer_bouton_valid(self):
-        # Désactive visuellement le bouton jaune (accès bloqué)
-        self.btn_sauvegarder.config(state="disabled")
+        # Désactive le champ de saisie et les boutons de configuration
+        self.entry_code.config(state="disabled")
+        self.btn_modifier.config(state="disabled")
+        self.btn_supprimer.config(state="disabled")
+
+    
+    # Dans Interface, ajoute cette méthode utilitaire :
+    def appeler_depuis_thread(self, func, *args):
+        self.root.after(0, func, *args)
 
 
     def interrompre_si_besoin(self):
@@ -168,11 +175,11 @@ class Interface:
         self.root.after(100, self.interrompre_si_besoin)
 
     def quitter_proprement(self, *args):
-        # Arrête proprement le programme
         print("\n[INFO] Fermeture en cours...")
-        self.root.quit()
-        self.root.destroy()
-        sys.exit(0)
+        try:
+            self.root.quit()   # sort du mainloop → finally dans main s'exécute
+        except Exception:
+            pass
 
 
     def sauvegarder_bd(self):

@@ -23,7 +23,5 @@ if __name__ == "__main__":
     # Lancement de l'interface et arrêt propre
     try:
         v.run()
-    except KeyboardInterrupt:
-        v.quitter_proprement()
-    finally:
+    finally:          # finally s'exécute même après root.quit()
         p.stop()

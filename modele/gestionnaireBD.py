@@ -7,7 +7,7 @@ class GestionnaireBD:
         self.dossier       = "fichiersBD"
         self.nomBD         = os.path.join(self.dossier, "alarme.db")
         self.tableEvenement = "evenements"
-        self.connexion     = ""
+        self.connexion     = None
 
         # Crée le dossier s'il n'existe pas
         if not os.path.exists(self.dossier):
@@ -27,6 +27,7 @@ class GestionnaireBD:
     def fermetureDB(self):
         if self.connexion:
             self.connexion.close()
+            self.connexion = None
         else:
             print("Erreur de connexion à la base de données")
 

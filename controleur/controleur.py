@@ -2,6 +2,7 @@ from modele.evenement import Evenement
 from modele.mesure import Mesure
 from modele.gestionnaireBD import GestionnaireBD
 import threading
+import time
 
 
 class Controleur:
@@ -56,6 +57,7 @@ class Controleur:
             self.tentatives = 0
             self.code_saisi = ""
             self.systeme_actif = False
+            self.platine.buzzer.off()
             self.platine.set_led(False)
             self.platine.lcd_afficher("Systeme", "desactive")
             self.vue.update_etat(False)
@@ -63,7 +65,7 @@ class Controleur:
                 "Désactivation du système d'alarme", {"capteur": "N/A", "code": "N/A"}
             )
             self.nouveaux_evenements.append(e)
-            self.vue.ajouter_event(e)
+            self.vue.appeler_depuis_thread(self.vue.ajouter_event, e)
 
         elif self.systeme_actif:
             # arrêt normal du système
@@ -78,7 +80,7 @@ class Controleur:
                 "Désactivation du système d'alarme", {"capteur": "N/A", "code": "N/A"}
             )
             self.nouveaux_evenements.append(e)
-            self.vue.ajouter_event(e)
+            self.vue.appeler_depuis_thread(self.vue.ajouter_event, e)
 
         else:
             # démarrage du système
@@ -93,14 +95,14 @@ class Controleur:
                 "Activation du système d'alarme", {"capteur": "N/A", "code": "N/A"}
             )
             self.nouveaux_evenements.append(e)
-            self.vue.ajouter_event(e)
+            self.vue.appeler_depuis_thread(self.vue.ajouter_event, e)
 
     # Mouvement
 
     def mouvement_detecte(self):
         # Réagit à une détection PIR : demande le code d'accès
         if self.systeme_actif and not self.attente_code and not self.acces_bloque:
-            mesure = Mesure(self.platine.pir.value)
+            self.mesure_courante = Mesure(self.platine.pir.value)
             self.attente_code = True
             self.code_saisi = ""
             self.platine.lcd_afficher("Mouvement!", "Entrez code:")
@@ -120,10 +122,6 @@ class Controleur:
         # Valide le code saisi - gère les tentatives et le blocage
         if not self.attente_code or self.acces_bloque:
             return
-        # DEBUG temporaire
-        print(
-            f"Code saisi: '{self.code_saisi}' | Code valide: '{self.code_valide}' | Longueur saisi: {len(self.code_saisi)} | Longueur valide: {len(self.code_valide)}"
-        )
 
         if self.code_saisi == self.code_valide:
             # Accès valide
@@ -133,13 +131,13 @@ class Controleur:
             self.code_saisi   = ""
             self.platine.lcd_afficher("Acces", "autorise!")
             self.platine.clignoter_verte()
+            self.platine.last_pir = time.time()
             e = Evenement(
                 "Accès valide du système d'alarme",
                 {"capteur": str(self.platine.pir.value), "code": code_log}
             )
             self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
-            # Réafficher système actif après quelques secondes
             threading.Timer(2.0, lambda: self.platine.lcd_afficher("Systeme", "active")).start()
 
         else:

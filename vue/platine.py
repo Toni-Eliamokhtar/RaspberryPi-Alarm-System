@@ -24,6 +24,7 @@ class Platine:
 
         # Buzzer
         self.buzzer = Buzzer(19)
+        self.buzzer_actif = False
 
         # Keypad
         self.ROWS = 4
@@ -106,11 +107,12 @@ class Platine:
         threading.Thread(target=_blink, daemon=True).start()
 
     def clignoter_rouge_infini(self):
-        # Fait clignoter la LED rouge indéfiniment (accès bloqué)
         def _blink():
             while self.controleur.acces_bloque:
                 self.led_rouge.on()
                 time.sleep(0.3)
+                if not self.controleur.acces_bloque:
+                    break
                 self.led_rouge.off()
                 time.sleep(0.3)
 
@@ -121,18 +123,27 @@ class Platine:
     def bip(self, duree=0.2):
         # Fait sonner le buzzer pendant une durée donnée
         def _bip():
+            self.buzzer_actif = True
             self.buzzer.on()
-            time.sleep(duree)
+            debut = time.time()
+            while time.time() - debut < duree:
+                if not self.buzzer_actif:
+                    break
+                time.sleep(0.1)
             self.buzzer.off()
-
+            self.buzzer_actif = False
         threading.Thread(target=_bip, daemon=True).start()
+
+    def arreter_buzzer(self):
+        self.buzzer_actif = False
+        self.buzzer.off()
 
     # LCD
 
     def lcd_afficher(self, ligne1="", ligne2=""):
         # Affiche un message sur le LCD (2 lignes de 16 caractères max)
         LCD1602.clear()
-        time.sleep(0.01)
+        time.sleep(0.05)
         LCD1602.write(0, 0, ligne1.ljust(16))
         LCD1602.write(0, 1, ligne2.ljust(16))
 
@@ -160,7 +171,7 @@ class Platine:
             if self.controleur.systeme_actif:
                 now = time.time()
                 # cooldown de 2 secondes entre deux détections pour éviter les faux positifs
-                if self.pir.value == 1 and now - self.last_pir > 2:
+                if self.pir.value == 1 and now - self.last_pir > 5:
                     self.last_pir = now
                     self.controleur.mouvement_detecte()
 
