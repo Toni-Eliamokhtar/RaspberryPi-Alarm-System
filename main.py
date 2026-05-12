@@ -10,7 +10,7 @@ if __name__ == "__main__":
     c.set_vue(v)
     c.set_platine(p)
 
-    c.init_systeme()  # (LED rouge ON)
+    c.init_systeme()
 
     try:
         v.run()
