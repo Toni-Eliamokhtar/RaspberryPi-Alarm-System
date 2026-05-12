@@ -120,6 +120,7 @@ class Controleur:
 
         if self.code_saisi == self.code_valide:
             # Accès valide
+            code_log = self.code_saisi
             self.attente_code = False
             self.tentatives   = 0
             self.code_saisi   = ""
@@ -127,7 +128,7 @@ class Controleur:
             self.platine.clignoter_verte()
             e = Evenement(
                 "Accès valide du système d'alarme",
-                {"capteur": "Mouvement détecté", "code": self.code_saisi}
+                {"capteur": "Mouvement détecté", "code": code_log}
             )
             self.vue.ajouter_event(e)
 
