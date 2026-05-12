@@ -137,7 +137,7 @@ class Platine:
 
 
     # Boucle principale (surveille PIR et Keypad)
-    
+
     def loop(self):
         """
         Thread principal : attend la stabilisation du PIR (10s),
@@ -145,15 +145,15 @@ class Platine:
         """
         time.sleep(10)  # stabilisation PIR au démarrage
         while self.running:
-            # ----- Lecture PIR -----
+            # Lecture PIR
             if self.controleur.systeme_actif:
                 now = time.time()
-                # cooldown de 3 secondes entre deux détections
-                if self.pir.motion_detected and now - self.last_pir > 3:
+                # cooldown de 2 secondes entre deux détections pour éviter les faux positifs
+                if self.pir.motion_detected and now - self.last_pir > 2:
                     self.last_pir = now
                     self.controleur.mouvement_detecte()
 
-            # ----- Lecture keypad -----
+            # Lecture keypad
             if self.controleur.attente_code:
                 touche = self.clavier.getKey()
                 if touche != self.clavier.NULL:
