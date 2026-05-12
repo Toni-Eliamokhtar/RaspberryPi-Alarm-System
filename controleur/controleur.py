@@ -61,6 +61,7 @@ class Controleur:
             self.platine.set_led(False)
             self.platine.lcd_afficher("Systeme", "desactive")
             self.vue.update_etat(False)
+            self.vue.appeler_depuis_thread(self.vue.debloquer_bouton_valid)
             e = Evenement(
                 "Désactivation du système d'alarme", {"capteur": "N/A", "code": "N/A"}
             )
@@ -164,6 +165,7 @@ class Controleur:
             else:
                 # Mauvais code, réessayer
                 restantes = self.MAX_TENTATIVES - self.tentatives
+                self.platine.led_verte.off()
                 self.platine.lcd_afficher("Code invalide", f"Reste: {restantes}")
                 self.platine.clignoter_rouge()
                 self.platine.bip(1)

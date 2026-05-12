@@ -169,6 +169,12 @@ class Interface:
     def appeler_depuis_thread(self, func, *args):
         self.root.after(0, func, *args)
 
+    
+    def debloquer_bouton_valid(self):
+        self.entry_code.config(state="normal")
+        self.btn_modifier.config(state="normal")
+        self.btn_supprimer.config(state="normal")
+
 
     def interrompre_si_besoin(self):
         # Permet à Python de traiter les signaux comme SIGINT (CTRL+C)

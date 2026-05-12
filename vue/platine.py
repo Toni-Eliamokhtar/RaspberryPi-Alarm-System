@@ -70,6 +70,7 @@ class Platine:
         self.thread = threading.Thread(target=self.loop)
         self.thread.daemon = True
         self.thread.start()
+        self.lcd_lock = threading.Lock()
 
     # Gestion des Leds
 
@@ -142,14 +143,16 @@ class Platine:
 
     def lcd_afficher(self, ligne1="", ligne2=""):
         # Affiche un message sur le LCD (2 lignes de 16 caractères max)
-        LCD1602.clear()
-        time.sleep(0.05)
-        LCD1602.write(0, 0, ligne1.ljust(16))
-        LCD1602.write(0, 1, ligne2.ljust(16))
+        with self.lcd_lock:
+            LCD1602.clear()
+            time.sleep(0.05)
+            LCD1602.write(0, 0, ligne1.ljust(16))
+            LCD1602.write(0, 1, ligne2.ljust(16))
 
     def lcd_effacer(self):
         # Efface l'écran LCD
-        LCD1602.clear()
+        with self.lcd_lock:
+            LCD1602.clear()
 
     # Boutons
 
@@ -189,7 +192,8 @@ class Platine:
         # Arrête le thread, LCD et GPIO
         self.running = False
         self.thread.join()
-        LCD1602.clear()
+        with self.lcd_lock:
+            LCD1602.clear()
         self.led_rouge.off()
         self.led_verte.off()
         self.buzzer.off()
