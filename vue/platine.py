@@ -124,6 +124,19 @@ class Platine:
         # Efface l'écran LCD
         LCD1602.clear()
 
+
+    # Boutons
+
+    def btn_start_pressed(self):
+        # Bouton bleu : démarre ou arrête le système
+        self.controleur.toggle_systeme()
+
+    def btn_valid_pressed(self):
+        # Bouton jaune : valide le code saisi sur le keypad
+        self.controleur.valider_code()
+
+        
+
     def mouvement_detecte(self):
         count = 0
         for _ in range(5):
