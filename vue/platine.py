@@ -117,6 +117,8 @@ class Platine:
 
     def lcd_afficher(self, ligne1="", ligne2=""):
         # Affiche un message sur le LCD (2 lignes de 16 caractères max)
+        LCD1602.clear()
+        time.sleep(0.01)
         LCD1602.write(0, 0, ligne1.ljust(16))
         LCD1602.write(0, 1, ligne2.ljust(16))
 
@@ -139,10 +141,7 @@ class Platine:
     # Boucle principale (surveille PIR et Keypad)
 
     def loop(self):
-        """
-        Thread principal : attend la stabilisation du PIR (10s),
-        puis lit en continu le PIR et le keypad.
-        """
+        # Thread principal : attend la stabilisation du PIR (10s), puis lit en continu le PIR et le keypad.
         time.sleep(10)  # stabilisation PIR au démarrage
         while self.running:
             # Lecture PIR
