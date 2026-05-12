@@ -153,5 +153,10 @@ class Interface:
         # Désactive visuellement le bouton jaune (accès bloqué)
         self.btn_sauvegarder.config(state="disabled")
 
+
+    def sauvegarder_bd(self):
+        # Sauvegarde les événements dans la base de données (à compléter)
+        messagebox.showinfo("Info", "Sauvegarde BD à implémenter.")
+
     def run(self):
         self.root.mainloop()
