@@ -8,7 +8,7 @@ class Controleur:
     def __init__(self):
 
         # Initialise / fait référence à la VUE et PLATINE
-        
+
         self.vue = None
         self.platine = None
 
@@ -17,16 +17,15 @@ class Controleur:
 
         # État du système
 
-        self.systeme_actif  = False   # système activé ou non
-        self.attente_code   = False   # en attente de saisie du code
-        self.acces_bloque   = False   # accès bloqué après 3 tentatives
-
+        self.systeme_actif = False  # système activé ou non
+        self.attente_code = False  # en attente de saisie du code
+        self.acces_bloque = False  # accès bloqué après 3 tentatives
 
         # Gestion du code
-        self.code_saisi    = ""       # touches accumulées du keypad
-        self.code_valide   = "1234"   # code d'accès par défaut
-        self.tentatives    = 0        # nombre de tentatives échouées
-        self.MAX_TENTATIVES = 3       # maximum de tentatives permises
+        self.code_saisi = ""  # touches accumulées du keypad
+        self.code_valide = "1234"  # code d'accès par défaut
+        self.tentatives = 0  # nombre de tentatives échouées
+        self.MAX_TENTATIVES = 3  # maximum de tentatives permises
 
         # Liste des nouveaux événements non encore sauvegardés
         self.nouveaux_evenements = []
@@ -43,7 +42,6 @@ class Controleur:
         self.platine.lcd_effacer()
         self.vue.update_etat(False)
 
-
     # Méthodes de contrôle du système (Toggle, bouton bleu)
 
     def toggle_systeme(self):
@@ -52,34 +50,31 @@ class Controleur:
 
         if self.acces_bloque:
             # si bloqué, le bouton bleu débloque et désactive
-            self.acces_bloque  = False
-            self.attente_code  = False
-            self.tentatives    = 0
-            self.code_saisi    = ""
+            self.acces_bloque = False
+            self.attente_code = False
+            self.tentatives = 0
+            self.code_saisi = ""
             self.systeme_actif = False
             self.platine.set_led(False)
             self.platine.lcd_afficher("Systeme", "desactive")
             self.vue.update_etat(False)
             e = Evenement(
-                "Désactivation du système d'alarme",
-                {"capteur": "N/A", "code": "N/A"}
+                "Désactivation du système d'alarme", {"capteur": "N/A", "code": "N/A"}
             )
             self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
 
-
         elif self.systeme_actif:
             # arrêt normal du système
             self.systeme_actif = False
-            self.attente_code  = False
-            self.tentatives    = 0
-            self.code_saisi    = ""
+            self.attente_code = False
+            self.tentatives = 0
+            self.code_saisi = ""
             self.platine.set_led(False)
             self.platine.lcd_afficher("Systeme", "desactive")
             self.vue.update_etat(False)
             e = Evenement(
-                "Désactivation du système d'alarme",
-                {"capteur": "N/A", "code": "N/A"}
+                "Désactivation du système d'alarme", {"capteur": "N/A", "code": "N/A"}
             )
             self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
@@ -87,19 +82,17 @@ class Controleur:
         else:
             # démarrage du système
             self.systeme_actif = True
-            self.attente_code  = False
-            self.tentatives    = 0
-            self.code_saisi    = ""
+            self.attente_code = False
+            self.tentatives = 0
+            self.code_saisi = ""
             self.platine.set_led(True)
             self.platine.lcd_afficher("Systeme", "active")
             self.vue.update_etat(True)
             e = Evenement(
-                "Activation du système d'alarme",
-                {"capteur": "N/A", "code": "N/A"}
+                "Activation du système d'alarme", {"capteur": "N/A", "code": "N/A"}
             )
             self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
-
 
     # Mouvement
 
@@ -108,9 +101,8 @@ class Controleur:
         if self.systeme_actif and not self.attente_code and not self.acces_bloque:
             mesure = Mesure(self.platine.pir.value)
             self.attente_code = True
-            self.code_saisi   = ""
+            self.code_saisi = ""
             self.platine.lcd_afficher("Mouvement!", "Entrez code:")
-
 
     # Keypad
 
@@ -121,25 +113,28 @@ class Controleur:
             # affiche les étoiles pour cacher le code
             self.platine.lcd_afficher("Entrez code:", "*" * len(self.code_saisi))
 
-
     # VALIDATION
 
     def valider_code(self):
         # Valide le code saisi - gère les tentatives et le blocage
         if not self.attente_code or self.acces_bloque:
             return
+        # DEBUG temporaire
+        print(
+            f"Code saisi: '{self.code_saisi}' | Code valide: '{self.code_valide}' | Longueur saisi: {len(self.code_saisi)} | Longueur valide: {len(self.code_valide)}"
+        )
 
         if self.code_saisi == self.code_valide:
             # Accès valide
             code_log = self.code_saisi
             self.attente_code = False
-            self.tentatives   = 0
-            self.code_saisi   = ""
+            self.tentatives = 0
+            self.code_saisi = ""
             self.platine.lcd_afficher("Acces", "autorise!")
             self.platine.clignoter_verte()
             e = Evenement(
                 "Accès valide du système d'alarme",
-                {"capteur": str(self.platine.pir.value), "code": code_log}
+                {"capteur": str(self.platine.pir.value), "code": code_log},
             )
             self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
@@ -149,7 +144,7 @@ class Controleur:
             self.tentatives += 1
             e = Evenement(
                 "Accès invalide du système d'alarme",
-                {"capteur": str(self.platine.pir.value), "code": self.code_saisi}
+                {"capteur": str(self.platine.pir.value), "code": self.code_saisi},
             )
             self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
@@ -172,9 +167,8 @@ class Controleur:
                 self.platine.clignoter_rouge()
                 self.platine.bip(1)
 
-
     # Sauvegarde BD
-    
+
     def sauvegarder_bd(self):
         # Sauvegarde les nouveaux événements dans la base de données
         if len(self.nouveaux_evenements) > 0:

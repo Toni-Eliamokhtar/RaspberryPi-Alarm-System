@@ -14,30 +14,43 @@ class Platine:
         # Leds
         self.led_rouge = LED(21)
         self.led_verte = LED(20)
-        
+
         # Boutons
         self.btn_start = Button(23, pull_up=True)
         self.btn_valid = Button(26, pull_up=True)
-        
+
         # capteur PIR (détection de mouvement)
         self.pir = MotionSensor(18)
-        
+
         # Buzzer
         self.buzzer = Buzzer(19)
-
 
         # Keypad
         self.ROWS = 4
         self.COLS = 4
         self.touches = [
-            '1','2','3','A',
-            '4','5','6','B',
-            '7','8','9','C',
-            '*','0','#','D'
+            "1",
+            "2",
+            "3",
+            "A",
+            "4",
+            "5",
+            "6",
+            "B",
+            "7",
+            "8",
+            "9",
+            "C",
+            "*",
+            "0",
+            "#",
+            "D",
         ]
-        self.lignes  = [27, 22,  5,  6]   # lignes   : IO27, IO22, IO5, IO6
-        self.colonnes = [24, 25, 12, 16]  # colonnes : IO24, IO25, IO12, IO16
-        self.clavier = c.Keypad(self.touches, self.lignes, self.colonnes, self.ROWS, self.COLS)
+        self.lignes = [24, 25, 12, 16]  # lignes   : IO27, IO22, IO5, IO6
+        self.colonnes = [27, 22, 5, 6]  # colonnes : IO24, IO25, IO12, IO16
+        self.clavier = c.Keypad(
+            self.touches, self.lignes, self.colonnes, self.ROWS, self.COLS
+        )
         self.clavier.setDebounceTime(50)
 
         # LCD
@@ -56,7 +69,6 @@ class Platine:
         self.thread = threading.Thread(target=self.loop)
         self.thread.daemon = True
         self.thread.start()
-
 
     # Gestion des Leds
 
@@ -78,6 +90,7 @@ class Platine:
                 self.led_verte.off()
                 time.sleep(0.3)
             self.led_verte.on()  # remet verte allumée après clignotement
+
         threading.Thread(target=_blink, daemon=True).start()
 
     def clignoter_rouge(self, fois=3):
@@ -89,6 +102,7 @@ class Platine:
                 self.led_rouge.off()
                 time.sleep(0.3)
             self.led_rouge.on()  # remet rouge allumée après clignotement
+
         threading.Thread(target=_blink, daemon=True).start()
 
     def clignoter_rouge_infini(self):
@@ -99,8 +113,8 @@ class Platine:
                 time.sleep(0.3)
                 self.led_rouge.off()
                 time.sleep(0.3)
-        threading.Thread(target=_blink, daemon=True).start()
 
+        threading.Thread(target=_blink, daemon=True).start()
 
     # Buzzer
 
@@ -110,8 +124,8 @@ class Platine:
             self.buzzer.on()
             time.sleep(duree)
             self.buzzer.off()
-        threading.Thread(target=_bip, daemon=True).start()
 
+        threading.Thread(target=_bip, daemon=True).start()
 
     # LCD
 
@@ -126,7 +140,6 @@ class Platine:
         # Efface l'écran LCD
         LCD1602.clear()
 
-
     # Boutons
 
     def btn_start_pressed(self):
@@ -136,7 +149,6 @@ class Platine:
     def btn_valid_pressed(self):
         # Bouton jaune : valide le code saisi sur le keypad
         self.controleur.valider_code()
-
 
     # Boucle principale (surveille PIR et Keypad)
 
@@ -159,7 +171,6 @@ class Platine:
                     self.controleur.ajouter_touche(touche)
 
             time.sleep(0.05)
-
 
     # Arrêt
 
