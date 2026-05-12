@@ -149,5 +149,9 @@ class Interface:
         messagebox.showinfo("Succès", "Code remis à la valeur par défaut (1234).")
 
 
+    def bloquer_bouton_valid(self):
+        # Désactive visuellement le bouton jaune (accès bloqué)
+        self.btn_sauvegarder.config(state="disabled")
+
     def run(self):
         self.root.mainloop()
