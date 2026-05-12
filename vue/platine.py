@@ -1,6 +1,9 @@
+from gpiozero import LED, Button, Buzzer, MotionSensor
 import RPi.GPIO as GPIO
 import time
 import threading
+import moduleCapteurs.LCD1602 as LCD1602
+import moduleCapteurs.KeypadGPIO5 as c
 
 
 class Platine:
@@ -8,39 +11,60 @@ class Platine:
     def __init__(self, controleur):
         self.controleur = controleur
 
-        self.LED_ROUGE = 21
-        self.LED_VERTE = 20
-        self.BTN_START = 23
-        self.BTN_VALID = 26
-        self.PIR = 18
-        self.BUZZER = 19
+        # Leds
+        self.led_rouge = LED(21)
+        self.led_verte = LED(20)
+        
+        # Boutons
+        self.btn_start = Button(23, pull_up=True)
+        self.btn_valid = Button(26, pull_up=True)
+        
+        # capteur PIR (détection de mouvement)
+        self.pir = MotionSensor(18)
+        
+        # Buzzer
+        self.buzzer = Buzzer(19)
 
-        GPIO.setmode(GPIO.BCM)
 
-        GPIO.setup(self.LED_ROUGE, GPIO.OUT)
-        GPIO.setup(self.LED_VERTE, GPIO.OUT)
-        GPIO.setup(self.BUZZER, GPIO.OUT)
+        # Keypad
+        self.ROWS = 4
+        self.COLS = 4
+        self.touches = [
+            '1','2','3','A',
+            '4','5','6','B',
+            '7','8','9','C',
+            '*','0','#','D'
+        ]
+        self.lignes  = [27, 22,  5,  6]   # lignes   : IO27, IO22, IO5, IO6
+        self.colonnes = [24, 25, 12, 16]  # colonnes : IO24, IO25, IO12, IO16
+        self.clavier = c.Keypad(self.touches, self.lignes, self.colonnes, self.ROWS, self.COLS)
+        self.clavier.setDebounceTime(50)
 
-        GPIO.setup(self.BTN_START, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(self.BTN_VALID, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        # LCD
+        LCD1602.init(0x27, 1)
+        LCD1602.clear()
 
-        GPIO.setup(self.PIR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        # Callbacks boutons
+        self.btn_start.when_pressed = self.btn_start_pressed
+        self.btn_valid.when_pressed = self.btn_valid_pressed
 
+        # État interne
         self.running = True
+        self.last_pir = 0  # timestamp dernière détection PIR (cooldown)
 
-        # état précédent des boutons (anti spam)
-        self.last_start = 1
-        self.last_valid = 1
-
-        # cooldown PIR
-        self.last_pir_time = 0
-
+        # Thread lecture PIR et keypad
         self.thread = threading.Thread(target=self.loop)
+        self.thread.daemon = True
         self.thread.start()
 
     def set_led(self, actif):
-        GPIO.output(self.LED_VERTE, actif)
-        GPIO.output(self.LED_ROUGE, not actif)
+        # Allume la LED verte si actif, rouge sinon
+        if actif:
+            self.led_verte.on()
+            self.led_rouge.off()
+        else:
+            self.led_verte.off()
+            self.led_rouge.on()
 
     def bip(self, d=0.2):
         GPIO.output(self.BUZZER, 1)
