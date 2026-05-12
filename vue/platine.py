@@ -112,6 +112,18 @@ class Platine:
             self.buzzer.off()
         threading.Thread(target=_bip, daemon=True).start()
 
+
+    # LCD
+
+    def lcd_afficher(self, ligne1="", ligne2=""):
+        # Affiche un message sur le LCD (2 lignes de 16 caractères max)
+        LCD1602.write(0, 0, ligne1.ljust(16))
+        LCD1602.write(0, 1, ligne2.ljust(16))
+
+    def lcd_effacer(self):
+        # Efface l'écran LCD
+        LCD1602.clear()
+
     def mouvement_detecte(self):
         count = 0
         for _ in range(5):
