@@ -43,7 +43,7 @@ class Controleur:
     def toggle_systeme(self):
 
         # Démarre ou arrête le système selon son état actuel
-        
+
         if self.acces_bloque:
             # si bloqué, le bouton bleu débloque et désactive
             self.acces_bloque  = False
@@ -90,8 +90,12 @@ class Controleur:
             )
             self.vue.ajouter_event(e)
 
-    def mouvement(self):
-        self.vue.update_message("MOUVEMENT DETECTÉ")
-        e = Evenement("Mouvement détecté", {})
-        self.vue.ajouter_event(e)
-        self.platine.bip(0.3)
+
+    # Mouvement
+
+    def mouvement_detecte(self):
+        # Réagit à une détection PIR : demande le code d'accès
+        if self.systeme_actif and not self.attente_code and not self.acces_bloque:
+            self.attente_code = True
+            self.code_saisi   = ""
+            self.platine.lcd_afficher("Mouvement!", "Entrez code:")
