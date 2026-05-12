@@ -107,7 +107,8 @@ class Interface:
         self.btn_sauvegarder.pack(pady=10)
 
 
-    # Affichage de l'état du système
+
+    # MÉTHODES
 
     def update_etat(self, actif):
         # Met à jour l'étiquette d'état avec la bonne couleur
@@ -122,11 +123,12 @@ class Interface:
                 bg="red"
             )
 
-    def update_message(self, msg):
-        self.label_message.config(text=msg)
 
     def ajouter_event(self, e):
+        # Ajoute un événement dans la listbox et défile vers le bas
         self.listbox.insert(tk.END, str(e))
+        self.listbox.yview(tk.END)  # défile automatiquement vers le dernier événement
+
 
     def run(self):
         self.root.mainloop()
