@@ -149,7 +149,7 @@ class Platine:
             if self.controleur.systeme_actif:
                 now = time.time()
                 # cooldown de 2 secondes entre deux détections pour éviter les faux positifs
-                if self.pir.motion_detected and now - self.last_pir > 2:
+                if self.pir.value == 1 and now - self.last_pir > 2:
                     self.last_pir = now
                     self.controleur.mouvement_detecte()
 
