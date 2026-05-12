@@ -57,6 +57,9 @@ class Platine:
         self.thread.daemon = True
         self.thread.start()
 
+
+    # Gestion des Leds
+
     def set_led(self, actif):
         # Allume la LED verte si actif, rouge sinon
         if actif:
@@ -65,6 +68,39 @@ class Platine:
         else:
             self.led_verte.off()
             self.led_rouge.on()
+
+    def clignoter_verte(self, fois=3):
+        # Fait clignoter la LED verte n fois (accès valide)
+        def _blink():
+            for _ in range(fois):
+                self.led_verte.on()
+                time.sleep(0.3)
+                self.led_verte.off()
+                time.sleep(0.3)
+            self.led_verte.on()  # remet verte allumée après clignotement
+        threading.Thread(target=_blink, daemon=True).start()
+
+    def clignoter_rouge(self, fois=3):
+        # Fait clignoter la LED rouge n fois (accès invalide)
+        def _blink():
+            for _ in range(fois):
+                self.led_rouge.on()
+                time.sleep(0.3)
+                self.led_rouge.off()
+                time.sleep(0.3)
+            self.led_rouge.on()  # remet rouge allumée après clignotement
+        threading.Thread(target=_blink, daemon=True).start()
+
+    def clignoter_rouge_infini(self):
+        # Fait clignoter la LED rouge indéfiniment (accès bloqué)
+        def _blink():
+            while self.controleur.acces_bloque:
+                self.led_rouge.on()
+                time.sleep(0.3)
+                self.led_rouge.off()
+                time.sleep(0.3)
+        threading.Thread(target=_blink, daemon=True).start()
+
 
     def bip(self, d=0.2):
         GPIO.output(self.BUZZER, 1)
