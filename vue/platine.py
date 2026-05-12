@@ -161,7 +161,14 @@ class Platine:
 
             time.sleep(0.05)
 
+
+    # Arrêt
+
     def stop(self):
+        # Arrête le thread, LCD et GPIO
         self.running = False
         self.thread.join()
-        GPIO.cleanup()
+        LCD1602.clear()
+        self.led_rouge.off()
+        self.led_verte.off()
+        self.buzzer.off()
