@@ -109,3 +109,51 @@ class Controleur:
             self.code_saisi += touche
             # affiche les étoiles pour cacher le code
             self.platine.lcd_afficher("Entrez code:", "*" * len(self.code_saisi))
+
+
+    # VALIDATION
+
+    def valider_code(self):
+        # Valide le code saisi - gère les tentatives et le blocage
+        if not self.attente_code or self.acces_bloque:
+            return
+
+        if self.code_saisi == self.code_valide:
+            # Accès valide
+            self.attente_code = False
+            self.tentatives   = 0
+            self.code_saisi   = ""
+            self.platine.lcd_afficher("Acces", "autorise!")
+            self.platine.clignoter_verte()
+            e = Evenement(
+                "Accès valide du système d'alarme",
+                {"capteur": "Mouvement détecté", "code": self.code_saisi}
+            )
+            self.vue.ajouter_event(e)
+
+        else:
+            # Accès invalide
+            self.tentatives += 1
+            e = Evenement(
+                "Accès invalide du système d'alarme",
+                {"capteur": "Mouvement détecté", "code": self.code_saisi}
+            )
+            self.vue.ajouter_event(e)
+            self.code_saisi = ""
+
+            if self.tentatives >= self.MAX_TENTATIVES:
+                # Accès bloqué
+                self.acces_bloque = True
+                self.attente_code = False
+                self.platine.led_verte.off()
+                self.platine.lcd_afficher("Acces", "bloque!")
+                self.platine.clignoter_rouge_infini()
+                self.platine.bip(10)
+                self.vue.update_etat(False)
+                self.vue.bloquer_bouton_valid()
+            else:
+                # Mauvais code, réessayer
+                restantes = self.MAX_TENTATIVES - self.tentatives
+                self.platine.lcd_afficher("Code invalide", f"Reste: {restantes}")
+                self.platine.clignoter_rouge()
+                self.platine.bip(1)
