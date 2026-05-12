@@ -130,5 +130,17 @@ class Interface:
         self.listbox.yview(tk.END)  # défile automatiquement vers le dernier événement
 
 
+    def modifier_code(self):
+        # Modifie le code d'accès avec le nouveau code saisi
+        nouveau = self.entry_code.get().strip()
+        if nouveau == "":
+            messagebox.showerror("Erreur", "Le code ne peut pas être vide.")
+        else:
+            self.c.code_valide = nouveau
+            self.label_code_actuel.config(text=nouveau)
+            self.entry_code.delete(0, tk.END)
+            messagebox.showinfo("Succès", f"Code modifié avec succès.")
+
+
     def run(self):
         self.root.mainloop()
