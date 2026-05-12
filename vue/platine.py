@@ -102,10 +102,15 @@ class Platine:
         threading.Thread(target=_blink, daemon=True).start()
 
 
-    def bip(self, d=0.2):
-        GPIO.output(self.BUZZER, 1)
-        time.sleep(d)
-        GPIO.output(self.BUZZER, 0)
+    # Buzzer
+
+    def bip(self, duree=0.2):
+        # Fait sonner le buzzer pendant une durée donnée
+        def _bip():
+            self.buzzer.on()
+            time.sleep(duree)
+            self.buzzer.off()
+        threading.Thread(target=_bip, daemon=True).start()
 
     def mouvement_detecte(self):
         count = 0
