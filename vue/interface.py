@@ -107,11 +107,20 @@ class Interface:
         self.btn_sauvegarder.pack(pady=10)
 
 
+    # Affichage de l'état du système
+
     def update_etat(self, actif):
-        self.label_etat.config(
-            text="Système ACTIVÉ" if actif else "Système DÉSACTIVÉ",
-            bg="green" if actif else "red",
-        )
+        # Met à jour l'étiquette d'état avec la bonne couleur
+        if actif:
+            self.label_etat.config(
+                text="Système ACTIVÉ",
+                bg="green"
+            )
+        else:
+            self.label_etat.config(
+                text="Système DÉSACTIVÉ",
+                bg="red"
+            )
 
     def update_message(self, msg):
         self.label_message.config(text=msg)
