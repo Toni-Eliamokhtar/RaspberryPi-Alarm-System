@@ -142,5 +142,12 @@ class Interface:
             messagebox.showinfo("Succès", f"Code modifié avec succès.")
 
 
+    def supprimer_code(self):
+        # Remet le code par défaut
+        self.c.code_valide = "1234"
+        self.label_code_actuel.config(text="1234")
+        messagebox.showinfo("Succès", "Code remis à la valeur par défaut (1234).")
+
+
     def run(self):
         self.root.mainloop()
