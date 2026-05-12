@@ -4,9 +4,26 @@ from modele.evenement import Evenement
 class Controleur:
 
     def __init__(self):
-        self.systeme_actif = False
+
+        # Initialise / fait référence à la VUE et PLATINE
+        
         self.vue = None
         self.platine = None
+
+
+        # État du système
+
+        self.systeme_actif  = False   # système activé ou non
+        self.attente_code   = False   # en attente de saisie du code
+        self.acces_bloque   = False   # accès bloqué après 3 tentatives
+
+
+        # Gestion du code
+        self.code_saisi    = ""       # touches accumulées du keypad
+        self.code_valide   = "1234"   # code d'accès par défaut
+        self.tentatives    = 0        # nombre de tentatives échouées
+        self.MAX_TENTATIVES = 3       # maximum de tentatives permises
+
 
     def set_vue(self, v):
         self.vue = v
