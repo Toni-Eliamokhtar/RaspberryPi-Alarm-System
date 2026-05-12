@@ -135,40 +135,29 @@ class Platine:
         # Bouton jaune : valide le code saisi sur le keypad
         self.controleur.valider_code()
 
-        
 
-    def mouvement_detecte(self):
-        count = 0
-        for _ in range(5):
-            if GPIO.input(self.PIR):
-                count += 1
-            time.sleep(0.02)
-        return count >= 4
-
+    # Boucle principale (surveille PIR et Keypad)
+    
     def loop(self):
-        time.sleep(10)  # stabilisation PIR
-
+        """
+        Thread principal : attend la stabilisation du PIR (10s),
+        puis lit en continu le PIR et le keypad.
+        """
+        time.sleep(10)  # stabilisation PIR au démarrage
         while self.running:
-
-            # ===== BOUTON START (anti-rebond) =====
-            current_start = GPIO.input(self.BTN_START)
-            if self.last_start == 1 and current_start == 0:
-                self.controleur.toggle_systeme()
-            self.last_start = current_start
-
-            # ===== BOUTON JAUNE (juste feedback) =====
-            current_valid = GPIO.input(self.BTN_VALID)
-            if self.last_valid == 1 and current_valid == 0:
-                print("Bouton jaune pressé")
-                self.bip(0.1)
-            self.last_valid = current_valid
-
-            # ===== PIR avec cooldown =====
+            # ----- Lecture PIR -----
             if self.controleur.systeme_actif:
                 now = time.time()
-                if self.mouvement_detecte() and now - self.last_pir_time > 2:
-                    self.last_pir_time = now
-                    self.controleur.mouvement()
+                # cooldown de 3 secondes entre deux détections
+                if self.pir.motion_detected and now - self.last_pir > 3:
+                    self.last_pir = now
+                    self.controleur.mouvement_detecte()
+
+            # ----- Lecture keypad -----
+            if self.controleur.attente_code:
+                touche = self.clavier.getKey()
+                if touche != self.clavier.NULL:
+                    self.controleur.ajouter_touche(touche)
 
             time.sleep(0.05)
 
