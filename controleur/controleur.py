@@ -1,4 +1,6 @@
 from modele.evenement import Evenement
+from modele.mesure import Mesure
+from modele.gestionnaireBD import GestionnaireBD
 
 
 class Controleur:
@@ -10,6 +12,8 @@ class Controleur:
         self.vue = None
         self.platine = None
 
+        # Gestionnaire de base de données
+        self.bd = GestionnaireBD()
 
         # État du système
 
@@ -24,6 +28,8 @@ class Controleur:
         self.tentatives    = 0        # nombre de tentatives échouées
         self.MAX_TENTATIVES = 3       # maximum de tentatives permises
 
+        # Liste des nouveaux événements non encore sauvegardés
+        self.nouveaux_evenements = []
 
     def set_vue(self, v):
         self.vue = v
@@ -58,7 +64,9 @@ class Controleur:
                 "Désactivation du système d'alarme",
                 {"capteur": "N/A", "code": "N/A"}
             )
+            self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
+
 
         elif self.systeme_actif:
             # arrêt normal du système
@@ -73,6 +81,7 @@ class Controleur:
                 "Désactivation du système d'alarme",
                 {"capteur": "N/A", "code": "N/A"}
             )
+            self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
 
         else:
@@ -88,6 +97,7 @@ class Controleur:
                 "Activation du système d'alarme",
                 {"capteur": "N/A", "code": "N/A"}
             )
+            self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
 
 
@@ -96,6 +106,7 @@ class Controleur:
     def mouvement_detecte(self):
         # Réagit à une détection PIR : demande le code d'accès
         if self.systeme_actif and not self.attente_code and not self.acces_bloque:
+            mesure = Mesure(self.platine.pir.value)
             self.attente_code = True
             self.code_saisi   = ""
             self.platine.lcd_afficher("Mouvement!", "Entrez code:")
@@ -128,8 +139,9 @@ class Controleur:
             self.platine.clignoter_verte()
             e = Evenement(
                 "Accès valide du système d'alarme",
-                {"capteur": "Mouvement détecté", "code": code_log}
+                {"capteur": str(self.platine.pir.value), "code": code_log}
             )
+            self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
 
         else:
@@ -137,8 +149,9 @@ class Controleur:
             self.tentatives += 1
             e = Evenement(
                 "Accès invalide du système d'alarme",
-                {"capteur": "Mouvement détecté", "code": self.code_saisi}
+                {"capteur": str(self.platine.pir.value), "code": self.code_saisi}
             )
+            self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
             self.code_saisi = ""
 
@@ -158,3 +171,15 @@ class Controleur:
                 self.platine.lcd_afficher("Code invalide", f"Reste: {restantes}")
                 self.platine.clignoter_rouge()
                 self.platine.bip(1)
+
+
+    # Sauvegarde BD
+    
+    def sauvegarder_bd(self):
+        # Sauvegarde les nouveaux événements dans la base de données
+        if len(self.nouveaux_evenements) > 0:
+            self.bd.ajouterEvenements(self.nouveaux_evenements)
+            self.nouveaux_evenements = []
+            print("Événements sauvegardés dans la BD")
+        else:
+            print("Aucun nouvel événement à sauvegarder")
