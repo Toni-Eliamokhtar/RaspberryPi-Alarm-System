@@ -155,8 +155,9 @@ class Interface:
 
 
     def sauvegarder_bd(self):
-        # Sauvegarde les événements dans la base de données (à compléter)
-        messagebox.showinfo("Info", "Sauvegarde BD à implémenter.")
+    # Sauvegarde les nouveaux événements dans la base de données
+    self.c.sauvegarder_bd()
+    messagebox.showinfo("Succès", "Événements sauvegardés dans la base de données.")
 
     def run(self):
         self.root.mainloop()
