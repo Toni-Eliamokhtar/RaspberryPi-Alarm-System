@@ -1,6 +1,7 @@
 from modele.evenement import Evenement
 from modele.mesure import Mesure
 from modele.gestionnaireBD import GestionnaireBD
+import threading
 
 
 class Controleur:
@@ -128,16 +129,18 @@ class Controleur:
             # Accès valide
             code_log = self.code_saisi
             self.attente_code = False
-            self.tentatives = 0
-            self.code_saisi = ""
+            self.tentatives   = 0
+            self.code_saisi   = ""
             self.platine.lcd_afficher("Acces", "autorise!")
             self.platine.clignoter_verte()
             e = Evenement(
                 "Accès valide du système d'alarme",
-                {"capteur": str(self.platine.pir.value), "code": code_log},
+                {"capteur": str(self.platine.pir.value), "code": code_log}
             )
             self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
+            # Réafficher système actif après quelques secondes
+            threading.Timer(2.0, lambda: self.platine.lcd_afficher("Systeme", "active")).start()
 
         else:
             # Accès invalide
