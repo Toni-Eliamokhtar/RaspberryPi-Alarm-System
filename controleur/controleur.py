@@ -99,3 +99,13 @@ class Controleur:
             self.attente_code = True
             self.code_saisi   = ""
             self.platine.lcd_afficher("Mouvement!", "Entrez code:")
+
+
+    # Keypad
+
+    def ajouter_touche(self, touche):
+        # Accumule les touches saisies sur le keypad et les affiche sur le LCD
+        if self.attente_code and not self.acces_bloque:
+            self.code_saisi += touche
+            # affiche les étoiles pour cacher le code
+            self.platine.lcd_afficher("Entrez code:", "*" * len(self.code_saisi))
