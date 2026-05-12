@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
+import sys
+import signal
+
 
 
 class Interface:
@@ -106,6 +109,12 @@ class Interface:
         )
         self.btn_sauvegarder.pack(pady=10)
 
+        # Gestion fermeture par la croix
+        self.root.protocol("WM_DELETE_WINDOW", self.quitter_proprement)
+
+        # Écoute le système toutes les 100ms (pour CTRL+C)
+        self.interrompre_si_besoin()
+
 
 
     # MÉTHODES
@@ -152,6 +161,18 @@ class Interface:
     def bloquer_bouton_valid(self):
         # Désactive visuellement le bouton jaune (accès bloqué)
         self.btn_sauvegarder.config(state="disabled")
+
+
+    def interrompre_si_besoin(self):
+        # Permet à Python de traiter les signaux comme SIGINT (CTRL+C)
+        self.root.after(100, self.interrompre_si_besoin)
+
+    def quitter_proprement(self, *args):
+        # Arrête proprement le programme
+        print("\n[INFO] Fermeture en cours...")
+        self.root.quit()
+        self.root.destroy()
+        sys.exit(0)
 
 
     def sauvegarder_bd(self):
