@@ -1,13 +1,14 @@
 import sqlite3
 import os
 
+
 class GestionnaireBD:
     def __init__(self):
         # Chemin relatif vers le dossier fichiersBD
-        self.dossier       = "fichiersBD"
-        self.nomBD         = os.path.join(self.dossier, "alarme.db")
+        self.dossier = "fichiersBD"
+        self.nomBD = os.path.join(self.dossier, "alarme.db")
         self.tableEvenement = "evenements"
-        self.connexion     = None
+        self.connexion = None
 
         # Crée le dossier s'il n'existe pas
         if not os.path.exists(self.dossier):
@@ -17,8 +18,10 @@ class GestionnaireBD:
         self.creationTable()
 
     # Connexion à la base de données
+
     def connexionBD(self):
         try:
+            print("Chemin BD :", os.path.abspath(self.nomBD))
             self.connexion = sqlite3.connect(self.nomBD)
         except sqlite3.Error as error:
             print("Erreur de connexion à la base de données", error)
@@ -35,9 +38,11 @@ class GestionnaireBD:
     def verifierExisteTable(self, table):
         existe = False
         cur = self.connexion.cursor()
-        sql_tableExiste = "SELECT count(name) " \
-                          "FROM sqlite_master " \
-                          "WHERE type='table' AND name='" + table + "'"
+        sql_tableExiste = (
+            "SELECT count(name) "
+            "FROM sqlite_master "
+            "WHERE type='table' AND name='" + table + "'"
+        )
         try:
             cur.execute(sql_tableExiste)
             if cur.fetchone()[0] == 1:
@@ -50,12 +55,14 @@ class GestionnaireBD:
 
     # Création de la table des événements
     def creationTable(self):
-        tableEvenements = "CREATE TABLE " + self.tableEvenement + " ( " \
-                          "id            INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " \
-                          "dateHeure     TEXT NOT NULL, " \
-                          "typeEvenement TEXT NOT NULL, " \
-                          "valeurCapteur TEXT, " \
-                          "codeSaisi     TEXT);"
+        tableEvenements = (
+            "CREATE TABLE " + self.tableEvenement + " ( "
+            "id            INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+            "dateHeure     TEXT NOT NULL, "
+            "typeEvenement TEXT NOT NULL, "
+            "valeurCapteur TEXT, "
+            "codeSaisi     TEXT);"
+        )
 
         self.connexionBD()
 
@@ -72,8 +79,11 @@ class GestionnaireBD:
 
     # Ajouter une liste d'événements dans la BD
     def ajouterEvenements(self, evenements):
-        sql_insert = "INSERT INTO " + self.tableEvenement + \
-                     " (dateHeure, typeEvenement, valeurCapteur, codeSaisi) VALUES (?, ?, ?, ?);"
+        sql_insert = (
+            "INSERT INTO "
+            + self.tableEvenement
+            + " (dateHeure, typeEvenement, valeurCapteur, codeSaisi) VALUES (?, ?, ?, ?);"
+        )
 
         self.connexionBD()
 
@@ -84,8 +94,11 @@ class GestionnaireBD:
                     e.dateHeureEvenement.strftime("%Y-%m-%d %H:%M:%S"),
                     e.typeEvenement,
                     e.donneeEvenement.get("capteur", ""),
-                    e.donneeEvenement.get("code", "")
+                    e.donneeEvenement.get("code", ""),
                 )
+
+                print("INSERT :", donnees_param)
+
                 cur_insert.execute(sql_insert, donnees_param)
             # Sauvegarde des données
             self.connexion.commit()
@@ -95,23 +108,3 @@ class GestionnaireBD:
             print("Erreur lors d'une opération sur la base de données", error)
         finally:
             self.fermetureDB()
-
-    # Sélectionner tous les événements de la BD
-    def selectionListeEvenements(self):
-        sql_select = "SELECT id, dateHeure, typeEvenement, valeurCapteur, codeSaisi " \
-                     "FROM " + self.tableEvenement
-
-        self.connexionBD()
-
-        data = []
-        try:
-            cur_select = self.connexion.cursor()
-            cur_select.execute(sql_select)
-            data = cur_select.fetchall()
-            cur_select.close()
-        except sqlite3.Error as error:
-            print("Erreur lors d'une opération sur la base de données", error)
-        finally:
-            self.fermetureDB()
-
-        return data

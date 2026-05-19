@@ -128,18 +128,20 @@ class Controleur:
             # Accès valide
             code_log = self.code_saisi
             self.attente_code = False
-            self.tentatives   = 0
-            self.code_saisi   = ""
+            self.tentatives = 0
+            self.code_saisi = ""
             self.platine.lcd_afficher("Acces", "autorise!")
             self.platine.clignoter_verte()
             self.platine.last_pir = time.time()
             e = Evenement(
                 "Accès valide du système d'alarme",
-                {"capteur": str(self.platine.pir.value), "code": code_log}
+                {"capteur": str(self.platine.pir.value), "code": code_log},
             )
             self.nouveaux_evenements.append(e)
             self.vue.ajouter_event(e)
-            threading.Timer(2.0, lambda: self.platine.lcd_afficher("Systeme", "active")).start()
+            threading.Timer(
+                2.0, lambda: self.platine.lcd_afficher("Systeme", "active")
+            ).start()
 
         else:
             # Accès invalide
@@ -173,7 +175,10 @@ class Controleur:
     # Sauvegarde BD
 
     def sauvegarder_bd(self):
-        # Sauvegarde les nouveaux événements dans la base de données
+
+        print("Événements à sauvegarder :")
+        print(self.nouveaux_evenements)
+
         if len(self.nouveaux_evenements) > 0:
             self.bd.ajouterEvenements(self.nouveaux_evenements)
             self.nouveaux_evenements = []

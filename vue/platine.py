@@ -67,8 +67,7 @@ class Platine:
         self.last_pir = 0  # timestamp dernière détection PIR (cooldown)
 
         # Thread lecture PIR et keypad
-        self.thread = threading.Thread(target=self.loop)
-        self.thread.daemon = True
+        self.thread = threading.Thread(target=self.loop, daemon=True)
         self.thread.start()
         self.lcd_lock = threading.Lock()
 
@@ -133,6 +132,7 @@ class Platine:
                 time.sleep(0.1)
             self.buzzer.off()
             self.buzzer_actif = False
+
         threading.Thread(target=_bip, daemon=True).start()
 
     def arreter_buzzer(self):
@@ -168,15 +168,20 @@ class Platine:
 
     def loop(self):
         # Thread principal : attend la stabilisation du PIR (10s), puis lit en continu le PIR et le keypad.
-        time.sleep(10)  # stabilisation PIR au démarrage
+        time.sleep(5)  # stabilisation PIR au démarrage
+        print("Système prêt!")
         while self.running:
+            print(self.pir.value)
             # Lecture PIR
             if self.controleur.systeme_actif:
                 now = time.time()
                 # cooldown de 2 secondes entre deux détections pour éviter les faux positifs
-                if self.pir.value == 1 and now - self.last_pir > 5:
-                    self.last_pir = now
-                    self.controleur.mouvement_detecte()
+
+            current = self.pir.value
+
+            if current == 1 and now - self.last_pir > 5:
+                self.last_pir = now
+                self.controleur.mouvement_detecte()
 
             # Lecture keypad
             if self.controleur.attente_code:
