@@ -84,6 +84,8 @@ class Platine:
 
     def clignoter_verte(self, fois=3):
         # Fait clignoter la LED verte n fois (accès valide)
+        self.led_rouge.off()
+
         def _blink():
             for _ in range(fois):
                 self.led_verte.on()
@@ -171,7 +173,6 @@ class Platine:
         time.sleep(5)  # stabilisation PIR au démarrage
         print("Système prêt!")
         while self.running:
-            print(self.pir.value)
             # Lecture PIR
             if self.controleur.systeme_actif:
                 now = time.time()
